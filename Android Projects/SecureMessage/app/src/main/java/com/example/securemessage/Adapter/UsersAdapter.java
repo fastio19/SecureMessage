@@ -12,6 +12,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.securemessage.ChatDetailActivity;
 import com.example.securemessage.Models.Users;
 import com.example.securemessage.R;
@@ -21,6 +23,8 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
 import org.jetbrains.annotations.NotNull;
@@ -47,8 +51,23 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder>{
     @Override
     public void onBindViewHolder(@NonNull @NotNull UsersAdapter.ViewHolder holder, int position) {
         Users users=list.get(position);
-        Picasso.get().load(users.getProfilePic()).placeholder(R.drawable.ic_user).into(holder.image);
+    //    String url="https://firebasestorage.googleapis.com/v0/b/message-66bb7.appspot.com/o/profile_pictures%2FH5O7dcmRgfN5iDexxkeCpT6Nso83?alt=media&token=3c9ea1ca-e73a-4306-8934-41b875b02bab";
+    //    Picasso.get().load(users.getProfilePic()).placeholder(R.drawable.ic_user).into(holder.image);
         holder.userName.setText(users.getUserName());
+        FirebaseDatabase.getInstance().getReference().child("Users")
+                .child(users.getUserId())
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+                        String url=snapshot.child("profilepic").getValue().toString();
+                        Picasso.get().load(url).placeholder(R.drawable.ic_user).into(holder.image);
+
+                    }
+                    @Override
+                    public void onCancelled(@NonNull @NotNull DatabaseError error) {
+
+                    }
+                });
         FirebaseDatabase.getInstance().getReference().child("chats")
                 .child(FirebaseAuth.getInstance().getUid()+users.getUserId())
                 .orderByChild("timestamp")
@@ -75,10 +94,6 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder>{
 
                     }
                 });
-
-
-
-
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

@@ -1,11 +1,19 @@
 package com.example.securemessage.Models;
 
 public class MessageModel {
-    String message;
+    String message, messageId;
     String uId;
     Long timeStamp;
     String key;
     public MessageModel(){
+    }
+
+    public String getMessageId() {
+        return messageId;
+    }
+
+    public void setMessageId(String messageId) {
+        this.messageId = messageId;
     }
 
     public MessageModel(String message, String uId, String key) {

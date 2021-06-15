@@ -12,6 +12,7 @@
     <color name="lightgreen">#e5ffcc</color>
     <color name="settingsIconColor">#0E8374</color>
     <color name="grayBackground">#BCBCBC</color>
+    <color name="gradiend_end_color">#ffffff</color>
     <color name="white">#ffffff</color>
 
     <color name="chatbackground">#AAAAAA</color>

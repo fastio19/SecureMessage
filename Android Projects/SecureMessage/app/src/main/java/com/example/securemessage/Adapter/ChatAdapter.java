@@ -1,6 +1,9 @@
 package com.example.securemessage.Adapter;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +18,7 @@ import com.example.securemessage.Models.MessageModel;
 import com.example.securemessage.R;
 import com.example.securemessage.utils.AESUtils;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -30,10 +34,17 @@ public class ChatAdapter extends RecyclerView.Adapter{
     Context context;
     int SENDER_VIEW_TYPE=1;
     int RECEIVER_VIEW_TYPE=2;
+    String recId;
 
     public ChatAdapter(ArrayList<MessageModel> messageModels, Context context) {
         this.messageModels = messageModels;
         this.context = context;
+    }
+
+    public ChatAdapter(ArrayList<MessageModel> messageModels, Context context, String recId) {
+        this.messageModels = messageModels;
+        this.context = context;
+        this.recId = recId;
     }
 
     @NonNull
@@ -65,6 +76,34 @@ public class ChatAdapter extends RecyclerView.Adapter{
     @Override
     public void onBindViewHolder(@NonNull @NotNull RecyclerView.ViewHolder holder, int position) {
         MessageModel messageModel=messageModels.get(position);
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                new AlertDialog.Builder(context)
+                        .setTitle("Delete")
+                        .setMessage("Are you sure you want to delete this message")
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                FirebaseDatabase database=FirebaseDatabase.getInstance();
+                                String senderRoom=FirebaseAuth.getInstance().getUid()+
+                                        recId;
+                                database.getReference().child("chats").child(senderRoom)
+                                        .child(messageModel.getMessageId())
+                                        .setValue(null);
+                            }
+                        }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                }).show();
+
+                return false;
+            }
+        });
+
+
         String decrypted="";
         try {
             decrypted= AESUtils.decrypt(messageModel.getMessage());

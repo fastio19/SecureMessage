@@ -38,6 +38,7 @@
             android:minWidth="50dp"
             android:text="Hi.."
             app:layout_constraintBottom_toTopOf="@+id/senderTime"
+            app:layout_constraintEnd_toStartOf="@+id/guideline"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
