@@ -45,6 +45,7 @@ public class ChatsFragment extends Fragment {
     ArrayList<Users> list=new ArrayList<Users>();
     FirebaseDatabase database;
     FirebaseAuth auth;
+    String userid,token;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

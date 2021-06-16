@@ -3,6 +3,7 @@ package com.example.securemessage;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -16,12 +17,15 @@ import com.example.securemessage.EncryptionDecryptionHybrid.EncDeHybrid;
 import com.example.securemessage.Models.MessageModel;
 import com.example.securemessage.databinding.ActivityChatDetailBinding;
 import com.example.securemessage.utils.AESUtils;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.squareup.picasso.Picasso;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,6 +34,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Objects;
 
 import javax.crypto.SecretKey;
 
@@ -42,6 +47,7 @@ public class ChatDetailActivity extends AppCompatActivity {
     ActivityChatDetailBinding binding;
     FirebaseDatabase database;
     FirebaseAuth auth;
+    String token;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,9 +59,9 @@ public class ChatDetailActivity extends AppCompatActivity {
 
 
         final String senderId=auth.getUid();
-        String receiverId=getIntent().getStringExtra("userId");
-        String userName=getIntent().getStringExtra("userName");
-        String profilePic=getIntent().getStringExtra("profilePic");
+        final String receiverId=getIntent().getStringExtra("userId");
+        final String userName=getIntent().getStringExtra("userName");
+        final String profilePic=getIntent().getStringExtra("profilePic");
 
 
         binding.userName.setText(userName);
@@ -97,6 +103,34 @@ public class ChatDetailActivity extends AppCompatActivity {
                     }
                 });
             chatAdapter.notifyDataSetChanged();
+        FirebaseMessaging.getInstance().subscribeToTopic("all");
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(new OnCompleteListener<String>() {
+                    @Override
+                    public void onComplete(@NonNull Task<String> task) {
+                        if (!task.isSuccessful()) {
+                            return;
+                        }
+                        // Get new FCM registration token
+                        token = task.getResult();
+                        Log.d("UserToken","Token : "+token);
+
+                    }
+                });
+        /*
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        if (task.isSuccessful()) {
+                            String  token = Objects.requireNonNull(task.getResult()).getToken();
+
+                        }
+
+                    }
+                });
+                */
+
 
         binding.send.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -105,6 +139,7 @@ public class ChatDetailActivity extends AppCompatActivity {
                     binding.enterMessage.setError("Empty Message");
                     return;
                 }
+                String title=userName;
                 String message=binding.enterMessage.getText().toString();
                 String key="";
                 String encrypted="";
@@ -129,7 +164,18 @@ public class ChatDetailActivity extends AppCompatActivity {
                                 (new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void unused) {
-
+                                if(!title.toString().isEmpty() && !message.toString().isEmpty()
+                                && !token.toString().isEmpty()){
+                                    FcmNotificationsSender notificationsSender=new
+                                            FcmNotificationsSender(token,
+                                            title,message,getApplicationContext(),
+                                            ChatDetailActivity.this);
+                                    notificationsSender.SendNotifications();
+                                }
+                                else{
+                                    Toast.makeText(ChatDetailActivity.this,
+                                            "Error Happened !!", Toast.LENGTH_SHORT).show();
+                                }
                             }
                         });
                     }
