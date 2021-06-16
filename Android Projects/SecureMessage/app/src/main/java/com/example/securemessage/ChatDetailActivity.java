@@ -14,11 +14,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.securemessage.Adapter.ChatAdapter;
 import com.example.securemessage.EncryptionDecryptionHybrid.EncDeHybrid;
 import com.example.securemessage.Models.MessageModel;
-import com.example.securemessage.SendNotifications.NotiModel.Notification;
-import com.example.securemessage.SendNotifications.NotiModel.NotificationReq;
-import com.example.securemessage.SendNotifications.NotiModel.NotificationResponse;
-import com.example.securemessage.SendNotifications.NotificationRequest;
-import com.example.securemessage.SendNotifications.RetrofitClient;
 import com.example.securemessage.databinding.ActivityChatDetailBinding;
 import com.example.securemessage.utils.AESUtils;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -42,7 +37,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static com.example.securemessage.SendNotifications.Constants.BASE_URL;
 
 public class ChatDetailActivity extends AppCompatActivity {
     ActivityChatDetailBinding binding;
@@ -135,37 +129,7 @@ public class ChatDetailActivity extends AppCompatActivity {
                                 (new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void unused) {
-                                Toast.makeText(ChatDetailActivity.this,
-                                        "Success", Toast.LENGTH_SHORT).show();
-                                database.getReference().child("Users").child(senderId)
-                                        .child("Info").addValueEventListener(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
-                                        String token=snapshot.child("token").getValue(String.class);
-                                        NotificationReq req=new NotificationReq(token,
-                                                new NotificationReq.Notification(userName,
-                                                        userName+" : "+message));
-                                        RetrofitClient.getRetrofit(BASE_URL)
-                                                .create(NotificationRequest.class)
-                                                .sent(req)
-                                                .enqueue(new Callback<NotificationResponse>() {
-                                                    @Override
-                                                    public void onResponse(Call<NotificationResponse> call, Response<NotificationResponse> response) {
 
-                                                    }
-
-                                                    @Override
-                                                    public void onFailure(Call<NotificationResponse> call, Throwable t) {
-
-                                                    }
-                                                });
-                                    }
-
-                                    @Override
-                                    public void onCancelled(@NonNull @NotNull DatabaseError error) {
-
-                                    }
-                                });
                             }
                         });
                     }
