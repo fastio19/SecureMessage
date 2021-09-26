@@ -1,12 +1,14 @@
 # SecureMessage
-Your chat messages can now be fully secure and safe! Modern encryption algorihthms prevent 
+### An end to end encrypted android chat application
+- Your chat messages can now be fully secure and safe! Modern encryption algorihthms prevent 
 unauthorized third party from reading your messages even after their interception.
-Encrypted message guarantees your privacy.
-SecureMessage can be used for sending/receiving encrypted message. It uses a combination of RSA
-and AES algorithms for encryption.
-Your private chats will be encrypted on the sender side and it only can be read by the receiver by using his private encryption key.
+- Encrypted message guarantees your privacy.
+- SecureMessage can be used for sending/receiving encrypted message. It uses a combination of RSA
+ and AES algorithms for encryption.
+- Your private chats will be encrypted on the sender side with the help of AES algorithm and this key will be encrypted with RSA algorithm.
+- At the reciever end RSA encrypted key is decrypted with private key of reciever and this key is used to decrypt message.
 
-## Snapshots
+### Snapshots
 <table align="center">
   <tr>
     <th>Login Page</th>
